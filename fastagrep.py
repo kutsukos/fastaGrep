@@ -1,10 +1,10 @@
 import sys
 
-FASTA_ID_START='>'            #indicator that a line contains name or desc of a genome
+FASTA_ID_START = '>'            # indicator that a line contains name or desc of a genome
 
 def fastagreper(file_in, file_out, keyword):
     with open(file_in, "r") as file0, open(file_out, "w") as file1:
-        write_flag=False
+        write_flag = False
         for line in file0:
             if FASTA_ID_START in line:
                 write_flag = keyword in line
