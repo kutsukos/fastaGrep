@@ -1,40 +1,41 @@
-from optparse import OptionParser
+import sys
 
-parser = OptionParser()
-parser.add_option("-i", "--input", dest="infile",
-                  help="read sequences from FILE", metavar="FILE")
-parser.add_option("-o", "--output", dest="outfile", default="fastaGrep.out",
-                  help="write output to FILE")
-parser.add_option("-k", "--key", dest="word",
-                  help="key used for grep")
+FASTA_ID_START='>'            #indicator that a line contains name or desc of a genome
 
-(options, args) = parser.parse_args()
-print "Fasta Grep 0.2.1"
-print "Reading sequences from: ", options.infile
-print "Writing selected sequences to: ",options.outfile
-print "Key for selecting sequences: ",options.word
+def fastagreper(file_in, file_out, keyword):
+    with open(file_in, "r") as file0, open(file_out, "w") as file1:
+        write_flag=False
+        for line in file0:
+            if FASTA_ID_START in line:
+                write_flag = keyword in line
+            if write_flag:
+                file1.write(line)
 
+def print_error_args():
+    print(f"Invalid arguments provided.")
+    print(f'Example: \tpython3 fastagrep.py input_file.fasta output_file.fasta keyword')
+    return 0
 
-filename=options.infile
-grep=options.word    #word we are searching in fasta names
-nameIDI='>'         #indicator that a line contains name or desc of a genome
-outputfile=options.outfile
+def main():
+    # Check if valid arguments are provided
+    if len(sys.argv) != 4:
+        return print_error_args()
 
-file = open(filename, "r")
-outFile = open(outputfile, "w")
+    file_in  = sys.argv[1]
+    file_out = sys.argv[2]
+    keyword  = sys.argv[3]
+    if not file_in.endswith(".fasta") or not file_out.endswith(".fasta"):
+        return print_error_args()
+    
+    print(f"Fasta Grep")
+    print(f"Reading sequences from: {file_in}")
+    print(f"Writing selected sequences to: {file_out}")
+    print(f"Key for selecting sequences: {keyword}")
 
-flag=False
-for line in file:
-    if(nameIDI in line):
-        if(grep in line):   #that means that we need the following genome until the next (>)
-            #sys.stdout.write(line)     #when this program used to write in stdout
-            outFile.write(line)
-            flag=True
-        else:
-            flag=False
-    else:
-        if(flag==True):
-            #sys.stdout.write(line)
-            outFile.write(line)
-file.close()
-outFile.close()
+    fastagreper(file_in, file_out, keyword)
+    
+    print(f"Fasta Grep: Complete")
+    return 1
+
+if __name__ == "__main__":
+        main()
